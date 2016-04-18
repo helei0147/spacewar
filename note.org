@@ -1,0 +1,82 @@
+#+STARTUP: showeverything
+* space war
+
+** bullets
+*** bullet attributes
+**** speed
+     every bullet has a speed in pixels per frame, no matter which direction it goes
+**** direction
+     this attribute is in degree, which PI is 180(for the rotation function)
+**** damage
+     for when the bullet collide with blocks, enemies etc. the damage it makes
+**** image and rect
+     hold the picture and its rect, modified by load_image() and rotation.
+**** original
+     hold original image, make the calculation of rotation degree much easier
+**** frame_counter
+     indicate how many frames this bullet has existed. can be used to indicate
+     the direction of moving and the speed bullet have(but this will be nonsense
+     when we use script to manage out moving)
+**** judgement
+**** TODO maybe a pack of judgement type and judgement scope. I'm not sure which to use.
+     circle judgement may contain a center position and a radius,
+     polygon judgement may contain a center and the list of points
+*** functions
+**** update()
+     update states of bullet, almost done by _move()
+**** _move()
+     do things such as rotate the picture of bullet, modify the picture rectangle
+***** TODO can be managed by script???
+
+** plane
+*** plane attributes
+**** image, rect
+     hold the picture of plane and the rect it in
+     can be modified when moving
+**** original
+     hold a copy of original image, can be useful when rotate the plane in specific
+     degree
+**** head_direction
+     indicate which direction our plane heads for currently, is used in rotating the pic
+     of plane
+**** normal_speed
+     the moving speed with L_SHIFT unholding
+**** slow_speed
+     the moving speed with L_SHIFT holding
+**** moving_mode
+     indicate plane's moving mode, NORMAL_MODE or SLOW_MODE(these two integer is defined in
+     constants.py)
+**** TODO derive from plane to create more planes
+     I have no idea now...
+*** functions
+**** _generate_move
+     given a direction and a moving mode, generate a tuple how many pixels plane moves
+     in x or y coodinary
+***** about eight directions
+      up->direction==0 and for every 45 degrees goes clockwise, direction increased by 1
+**** _move()
+***** generate the tuple of movement
+***** rotate the picture
+***** resize and move the rect
+***** check if the plane is partly outside the game window
+**** _shoot()
+     different planes can have different shooting mode , so this function can be more complicated in
+     derived classes
+*** functions about plane, but not in the class
+**** key_press_process_plane(plane,keystate)
+     keystate is the list of pressed button. this function can
+***** process the arrows and set themoving direction of plane.
+***** check the shooting button
+      return the bullet_buffer of this frame to add these bullets to the bullets pool.
+***** check slowdown button and set the mode of plane
+
+
+** circle_bullet
+*** attributes
+**** judgement
+     CIRCLE_JUDGEMENT or POLYGON_JUDGEMENT, there may be more types in the future
+
+
+** enemy
+*** _generate_move()
+    this function can generate a moving tuple for _move(), return the tuple. Simply motivated by _move()

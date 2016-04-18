@@ -1,0 +1,93 @@
+import sys,os
+import pygame
+from tools import *
+from pygame.locals import *
+import bullet
+
+class plane(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image,self.rect=load_image('plane.png',-1)
+        self.original=self.image
+        self.head_direction=0
+        self.direction=-1
+        self.position=0
+        self.normal_speed=10
+        self.slow_speed=5
+        self.moving_mode=NORMAL_MODE
+    def update(self):
+        self._move()
+    def _generate_move(self,direction,mode):
+        if mode==SLOW_MODE:
+            speed=self.slow_speed
+        else:
+            speed=self.normal_speed
+        sqrt2 = 2**(-0.5)
+        if direction==0:
+            return (0,-speed)
+        elif direction==1:
+            return (sqrt2*speed,-sqrt2*speed)
+        elif direction==2:
+            return (speed,0)
+        elif direction==3:
+            return (sqrt2*speed,sqrt2*speed)
+        elif direction==4:
+            return (0,speed)
+        elif direction==5:
+            return (-sqrt2*speed,sqrt2*speed)
+        elif direction==6:
+            return (-speed,0)
+        elif direction==7:
+            return (-speed*sqrt2,-speed*sqrt2)
+        elif direction==-1:
+            return (0,0)
+    def _move(self):
+        moving=self._generate_move(self.direction,self.moving_mode)
+        # first move the rect, then check if it is out of range
+        self.rect=self.rect.move(moving)
+        # rotate the picture to the direction of moving
+        center=self.rect.center
+        rotate=pygame.transform.rotate
+        if self.direction==-1:
+            # the plane is not moving, head_direction stay still
+            pass
+        else:
+            # the image rotate by 45*(direction-head_direction)
+            # clockwise
+            self.image=rotate(self.original,-self.head_direction*45)
+            self.rect=self.image.get_rect(center=center)
+            self.head_direction=self.direction
+        if self.rect.left<GAME_RECT.left:
+            self.rect.left=0
+        elif self.rect.right>GAME_RECT.right:
+            self.rect.right=GAME_RECT.right
+        if self.rect.top<GAME_RECT.top:
+            self.rect.top=GAME_RECT.top
+        elif self.rect.bottom>GAME_RECT.bottom:
+            self.rect.bottom=GAME_RECT.bottom
+
+    def _shoot(self):
+        bullet_buffer=[]
+        direction=0.1
+        temp_position=(self.rect.centerx,self.rect.top)
+        damage=2
+        for i in range(5):
+            temp_bullet=bullet.bullet(temp_position,direction*i,damage)
+            bullet_buffer.append(temp_bullet)
+            temp_bullet=bullet.bullet(temp_position,-direction*i,damage)
+            bullet_buffer.append(temp_bullet)
+        return bullet_buffer
+
+
+def key_press_process_plane(myplane,keystate):
+    arrow_buffer=get_arrow_state(keystate)
+    current_direction=return_direction(arrow_buffer)
+    myplane.direction=current_direction
+    bullet_buffer=[]
+    if keystate[K_LSHIFT]:
+        myplane.moving_mode=SLOW_MODE
+    else:
+        myplane.moving_mode=NORMAL_MODE
+    if keystate[K_z]:
+        bullet_buffer=myplane._shoot()
+    return bullet_buffer
