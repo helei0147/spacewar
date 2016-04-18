@@ -48,6 +48,7 @@
      constants.py)
 **** TODO derive from plane to create more planes
      I have no idea now...
+     this time, there is no need to use class plane. I use class player and class enemy to do the work.
 *** functions
 **** _generate_move
      given a direction and a moving mode, generate a tuple how many pixels plane moves
@@ -75,8 +76,12 @@
 *** attributes
 **** judgement
      CIRCLE_JUDGEMENT or POLYGON_JUDGEMENT, there may be more types in the future
+**** collide detection
+it is very easy to use given functions! great!I use pygame.sprite.spritecollide to process collides
 
 
-** enemy
+** player
 *** _generate_move()
     this function can generate a moving tuple for _move(), return the tuple. Simply motivated by _move()
+*** _get_hit()
+when the player get hitted, this function is called. when the player is in the status of undefeated, life cannot be decreased. only when the undefeated_frame_remain is zero, life decreased by 1(this is completed by _biu())
