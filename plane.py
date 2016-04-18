@@ -8,7 +8,7 @@ class player(pygame.sprite.Sprite):
     def __init__(self,filename):
         pygame.sprite.Sprite.__init__(self)
         self.image,self.rect=load_image(filename,-1)
-        self.rect.center=GAME_RECT.center
+        self.rect.center=(GAME_RECT.centerx,GAME_RECT.centery+100)
         self.original=self.image
         # moving attributes
         self.head_direction=0
@@ -19,7 +19,7 @@ class player(pygame.sprite.Sprite):
         self.if_change_headd_direction=False
         self.radius=7
         # game attributes
-        self.life=10
+        self.life=3
         self.bomb=3
         self.undefeatable_frames_remain=0
 
@@ -90,7 +90,7 @@ class player(pygame.sprite.Sprite):
     def _shoot(self):
         bullet_buffer=[]
         direction=0.1
-        temp_position=(self.rect.centerx,self.rect.top)
+        temp_position=(self.rect.centerx-25,self.rect.top)
         damage=2
         for i in range(5):
             temp_bullet=bullet.bullet(temp_position,direction*i,damage)
@@ -131,7 +131,7 @@ class enemy(pygame.sprite.Sprite):
         if self.frame_counter<100:
             pass
         else:
-            ways=4
+            ways=1
             self.base_shoot_direction+=1
             for i in range(ways):
                 temp_direction=i*360/ways+self.base_shoot_direction

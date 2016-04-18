@@ -7,6 +7,8 @@ import os,sys
 main_dir='/home/marisa/spacewar'
 data_dir='/home/marisa/spacewar/data'
 
+FPS=60
+
 # colors
 RED=(255,0,0)
 WHITE=(255,255,255)
@@ -25,6 +27,7 @@ UP_LEFT=7
 WINDOW_WIDTH=1024
 WINDOW_HEIGHT=768
 GAME_RECT=pygame.Rect(20,20,600,723)
+ATTRIBUTE_RECT=pygame.Rect(750,100,250,100)
 WINDOE_RECT=pygame.Rect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT)
 # moving mode
 SLOW_MODE=2
