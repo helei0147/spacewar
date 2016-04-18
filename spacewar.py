@@ -8,13 +8,11 @@ import bullet
 def main():
     pygame.init()
     screen=pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
-    pygame.display.set_caption('balllllll')
+    pygame.display.set_caption('ball')
     pygame.mouse.set_visible(0)
 
-    background=pygame.Surface(screen.get_size())
+    background,back_rect=load_image('background.png',(0,255,0))
     background=background.convert()
-    background.fill((0,0,0))
-
     screen.blit(background,(0,0))
     pygame.display.flip()
 
@@ -82,18 +80,29 @@ def main():
         for i in enemy_sprites:
             if i.health<=0:
                 i.kill()
+        # remove out of range bullets
+        for i in enemy_bullet_sprites:
+            if i.rect.colliderect(GAME_RECT)==False:
+                i.kill()
+        for i in player_bullet_sprites:
+            if i.rect.colliderect(GAME_RECT)==False:
+                i.kill()
 
-        screen.blit(background,(0,0))
+        #print len(player_bullet_sprites)+len(enemy_bullet_sprites)
+        screen.fill((0,0,0))
+        pygame.draw.rect(screen,RED,GAME_RECT,1)
         player_sprites.draw(screen)
         enemy_sprites.draw(screen)
         player_bullet_sprites.draw(screen)
         enemy_bullet_sprites.draw(screen)
+        screen.blit(background,(0,0))
 
         # judgement point display
         for i in player_sprites:
             if i.moving_mode==SLOW_MODE:
                 pygame.draw.circle(screen,WHITE,i.rect.center,i.radius)
                 pygame.draw.circle(screen,RED,i.rect.center,i.radius,2)
+
         pygame.display.flip()
 
     pygame.quit()

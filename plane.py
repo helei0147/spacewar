@@ -8,6 +8,7 @@ class player(pygame.sprite.Sprite):
     def __init__(self,filename):
         pygame.sprite.Sprite.__init__(self)
         self.image,self.rect=load_image(filename,-1)
+        self.rect.center=GAME_RECT.center
         self.original=self.image
         # moving attributes
         self.head_direction=0
@@ -78,7 +79,7 @@ class player(pygame.sprite.Sprite):
                 self.rect=self.image.get_rect(center=center)
                 self.head_direction=self.direction
         if self.rect.left<GAME_RECT.left:
-            self.rect.left=0
+            self.rect.left=GAME_RECT.left
         elif self.rect.right>GAME_RECT.right:
             self.rect.right=GAME_RECT.right
         if self.rect.top<GAME_RECT.top:
