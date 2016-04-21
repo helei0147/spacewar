@@ -14,8 +14,8 @@ class player(pygame.sprite.Sprite):
         # moving attributes
         self.head_direction=0
         self.direction=-1
-        self.normal_speed=10
-        self.slow_speed=5
+        self.normal_speed=8
+        self.slow_speed=3
         self.moving_mode=NORMAL_MODE
         self.if_change_headd_direction=False
         self.radius=7
@@ -25,7 +25,7 @@ class player(pygame.sprite.Sprite):
         self.bomb=3
         self.undefeatable_frames_remain=0
         self.alive_frames=0
-        self.shooting_ways=2
+        self.shooting_ways=5
 
     def update(self):
         self._move()

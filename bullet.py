@@ -8,7 +8,7 @@ from tools import *
 class bullet(pygame.sprite.Sprite):
     def __init__(self,position,temp_direction=0,temp_damage=1):
         pygame.sprite.Sprite.__init__(self)
-        self.image,self.rect=load_image('A.png',-1)
+        self.image,self.rect=load_image('bullet2.png',-1)
         self.original=self.image
         screen=pygame.display.get_surface()
         self.area=screen.get_rect()
