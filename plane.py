@@ -10,6 +10,7 @@ class player(pygame.sprite.Sprite):
         self.image,self.rect=load_image(filename,-1)
         self.rect.center=(GAME_RECT.centerx,GAME_RECT.centery+100)
         self.original=self.image
+
         # moving attributes
         self.head_direction=0
         self.direction=-1
@@ -18,19 +19,23 @@ class player(pygame.sprite.Sprite):
         self.moving_mode=NORMAL_MODE
         self.if_change_headd_direction=False
         self.radius=7
+
         # game attributes
         self.life=3
         self.bomb=3
         self.undefeatable_frames_remain=0
+        self.alive_frames=0
+        self.shooting_ways=2
 
     def update(self):
         self._move()
+        self.alive_frames+=1
         if self.undefeatable_frames_remain>0:
             self.undefeatable_frames_remain-=1
 
     def _biu(self):
         self.life-=1
-        self.undefeatable_frames_remain=120
+        self.undefeatable_frames_remain=1200
     def _get_hit(self):
         if self.undefeatable_frames_remain==0:
             self._biu()
@@ -89,10 +94,12 @@ class player(pygame.sprite.Sprite):
 
     def _shoot(self):
         bullet_buffer=[]
+        if self.alive_frames%6!=0:
+            return bullet_buffer
         direction=0.1
         temp_position=(self.rect.centerx-25,self.rect.top)
         damage=2
-        for i in range(5):
+        for i in range(self.shooting_ways):
             temp_bullet=bullet.bullet(temp_position,direction*i,damage)
             bullet_buffer.append(temp_bullet)
             temp_bullet=bullet.bullet(temp_position,-direction*i,damage)
@@ -105,6 +112,7 @@ class enemy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image,self.rect=load_image(filename,-1)
         self.rect=self.rect.move((temp_position[0]-self.rect.centerx,temp_position[1]-self.rect.centery))
+        self.position=(float(self.rect.centerx),float(self.rect.centery))
         self.original=self.image
         self.radius=40
         self.speed=0
@@ -123,7 +131,13 @@ class enemy(pygame.sprite.Sprite):
         return moving
     def _move(self):
         moving=self._generate_move()
-        self.rect=self.rect.move(moving)
+        positionx=self.position[0]+moving[0]
+        positiony=self.position[1]+moving[1]
+
+        temp_move=(int(positionx)-int(self.position[0]),int(positiony)-int(self.position[1]))
+        self.position=(positionx,positiony)
+
+        self.rect=self.rect.move(temp_move)
     def shoot(self):
         bullet_buffer=[]
         if self.frame_counter%6!=0:
@@ -131,7 +145,7 @@ class enemy(pygame.sprite.Sprite):
         if self.frame_counter<100:
             pass
         else:
-            ways=1
+            ways=10
             self.base_shoot_direction+=1
             for i in range(ways):
                 temp_direction=i*360/ways+self.base_shoot_direction

@@ -12,7 +12,7 @@ class bullet(pygame.sprite.Sprite):
         self.original=self.image
         screen=pygame.display.get_surface()
         self.area=screen.get_rect()
-        self.position=position
+        self.position=(int(position[0]),int(position[1]))
         # count how many frames this bullet has survived
         self.frame_counter=0
         self.speed=7.0
@@ -26,8 +26,11 @@ class bullet(pygame.sprite.Sprite):
     def _move(self):
         move_x=self.speed*math.sin(self.direction)
         move_y=-self.speed*math.cos(self.direction)
-        self.rect=self.rect.move((move_x,move_y))
-        self.position=self.rect.center
+        positionx=self.position[0]+move_x
+        positiony=self.position[1]+move_y
+
+        self.rect=self.rect.move((int(positionx)-int(self.position[0]),int(positiony)-int(self.position[1]) ))
+        self.position=(positionx,positiony)
 
 class circle_bullet(bullet):
     def __init__(self,position,temp_direction=0,temp_damage=1):
