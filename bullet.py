@@ -59,7 +59,7 @@ class amulet_bullet(bullet):
     def update(self):
         self._move(self.target)
         self.frame_counter+=1
-    def _move(self,target,weight=0.5):
+    def _move(self,target,weight=0.91):
         if self.target!=None and self.target.alive():
             print self.target
             destination=self.target.rect.center
@@ -68,8 +68,12 @@ class amulet_bullet(bullet):
             if theta==DISTANCE_ZERO:
                 self.kill()
                 return
-            if self.frame_counter<100:
+            if self.frame_counter<30:
                 # now theta is in rad
+                if theta>pi:
+                    theta=theta-2*pi
+                if self.direction>pi:
+                    self.direction=self.direction-2*pi
                 self.direction=self.direction*weight+theta*(1-weight)
             else:
                 self.direction=theta

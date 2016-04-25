@@ -3,6 +3,7 @@ import pygame
 from tools import *
 from pygame.locals import *
 import bullet
+from math import *
 
 class player(pygame.sprite.Sprite):
     def __init__(self,filename):
@@ -97,8 +98,9 @@ class player(pygame.sprite.Sprite):
         if self.alive_frames%6!=0:
             return bullet_buffer
         direction=0.3
-        temp_position=(self.rect.centerx-25,self.rect.top)
+        temp_position=(self.rect.centerx,self.rect.top)
         damage=2
+        '''
         for i in range(self.shooting_ways):
             if len(enemy_sprites.sprites())!=0:
                 target=enemy_sprites.sprites()[0]
@@ -108,6 +110,29 @@ class player(pygame.sprite.Sprite):
             bullet_buffer.append(temp_bullet)
             temp_bullet=bullet.amulet_bullet(temp_position,target,-direction*i,damage)
             bullet_buffer.append(temp_bullet)
+        '''
+        if self.shooting_ways%2==0:
+            direction=2*pi/self.shooting_ways
+            if len(enemy_sprites.sprites())!=0:
+                target=enemy_sprites.sprites()[0]
+            else:
+                target=None
+            current_direction=direction/2
+            for i in range(self.shooting_ways):
+                temp_bullet=bullet.amulet_bullet(temp_position,target,current_direction,damage)
+                bullet_buffer.append(temp_bullet)
+                current_direction+=direction
+        else:
+            direction=2*pi/self.shooting_ways
+            current_direction=0
+            if len(enemy_sprites.sprites())!=0:
+                target=enemy_sprites.sprites()[0]
+            else:
+                target=None
+            for i in range(self.shooting_ways):
+                temp_bullet=bullet.amulet_bullet(temp_position,target,current_direction,damage)
+                bullet_buffer.append(temp_bullet)
+                current_direction+=direction
         return bullet_buffer
 
 
