@@ -53,7 +53,7 @@ def main():
         ''' it is wierd the function of processing key-pressing returns
         a buffer of bullet... maybe there is another way to ksolve this better'''
         for whoever in player_sprites:
-            player_bullet_buffer=plane.key_press_process_plane(player_maid,keystate)
+            player_bullet_buffer=plane.key_press_process_plane(player_maid,enemy_sprites,keystate)
             player_bullet_sprites.add(player_bullet_buffer)
 
         # enemy shooting
@@ -103,6 +103,7 @@ def main():
         player_bullet_sprites.draw(screen)
         player_sprites.draw(screen)
         enemy_bullet_sprites.draw(screen)
+        print len(enemy_sprites.sprites())
         screen.blit(background,(0,0))
         blit_life(player_sprites,life,screen)
         # judgement point display

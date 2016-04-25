@@ -85,3 +85,9 @@ it is very easy to use given functions! great!I use pygame.sprite.spritecollide 
     this function can generate a moving tuple for _move(), return the tuple. Simply motivated by _move()
 *** _get_hit()
 when the player get hitted, this function is called. when the player is in the status of undefeated, life cannot be decreased. only when the undefeated_frame_remain is zero, life decreased by 1(this is completed by _biu())
+
+* 敌人的运行脚本
+在何时（多少帧）从什么地方以什么方向出现，之后发射什么类型的弹幕
+* 自机的replay
+按照帧存储按键集重新运行游戏？比想象中的要难一些。。。
+* 对话设计，人物的显现，淡出（pygame中有设置alpha值的选项吗？看看去）

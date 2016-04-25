@@ -92,17 +92,21 @@ class player(pygame.sprite.Sprite):
         elif self.rect.bottom>GAME_RECT.bottom:
             self.rect.bottom=GAME_RECT.bottom
 
-    def _shoot(self):
+    def shoot(self,enemy_sprites):
         bullet_buffer=[]
         if self.alive_frames%6!=0:
             return bullet_buffer
-        direction=0.1
+        direction=0.3
         temp_position=(self.rect.centerx-25,self.rect.top)
         damage=2
         for i in range(self.shooting_ways):
-            temp_bullet=bullet.bullet(temp_position,direction*i,damage)
+            if len(enemy_sprites.sprites())!=0:
+                target=enemy_sprites.sprites()[0]
+            else:
+                target=None
+            temp_bullet=bullet.amulet_bullet(temp_position,target,direction*i,damage)
             bullet_buffer.append(temp_bullet)
-            temp_bullet=bullet.bullet(temp_position,-direction*i,damage)
+            temp_bullet=bullet.amulet_bullet(temp_position,target,-direction*i,damage)
             bullet_buffer.append(temp_bullet)
         return bullet_buffer
 
@@ -152,7 +156,7 @@ class enemy(pygame.sprite.Sprite):
                 temp_bullet=bullet.circle_bullet(self.rect.center,temp_direction)
                 bullet_buffer.append(temp_bullet)
         return bullet_buffer
-def key_press_process_plane(myplane,keystate):
+def key_press_process_plane(myplane,enemy_sprites,keystate):
     arrow_buffer=get_arrow_state(keystate)
     current_direction=return_direction(arrow_buffer)
     myplane.direction=current_direction
@@ -162,5 +166,5 @@ def key_press_process_plane(myplane,keystate):
     else:
         myplane.moving_mode=NORMAL_MODE
     if keystate[K_z]:
-        bullet_buffer=myplane._shoot()
+        bullet_buffer=myplane.shoot(enemy_sprites)
     return bullet_buffer
