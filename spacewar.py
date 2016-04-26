@@ -132,7 +132,52 @@ def blit_life(player_sprites,image,surface):
             surface.blit(image,left_top)
             left_top=(left_top[0]+30,left_top[1])
         left_top=(left_top[0],left_top[1]+100)
+def welcoming_page(screen,clock):
+    background_image,backgtound_rect=load_iamge('welcoming.png')
+    screen.blit(background_image(0,0))
+    current_selection=0
+    selections=['ARCADE','CONQUEST','STAGE PRACTICE','WATCH REPLAY','OPTIONS','QUIT']
+    while going:
+        clock.tick()
+        if pygame.font:
+            font=pygame.font.Font(None,36)
+            current_center=(screen.get_width()/2,200)
+            height=50
+            for i in range(len(selections)):
+                current_center=(current_center[0],current_center[1]+height)
+                if i==current_selection:
+                    text,textpos=render_string(selections[i],font,36,RED,current_center)
+                else:
+                    text,textpos=render_string(selections[i],font,24,RED,current_center)
+                screen.blit(text,textpos)
+        keystate=pygame.key.get_pressed()
+        if keystate[K_ESCAPE]:
+            going=False
+        if keystate[K_UP]:
+            current_selection-=1
+            current_selection=current_selection%len(selections)
+        if keystate[K_DOWN]:
+            current_selection+=1
+            current_selection=curretn_selection%len(selections)
+        if keystate[K_RETURN] or keystate[K_z]:
+            if current_selection==0:
+                arcade_mode()
+            elif current_selection==1:
+                conquest_mode()
+            elif current_selection==2:
+                practice_mode()
+            elif current_selection==3:
+                replay_mode()
+            elif current_selection==4:
+                option_mode()
+            elif current_selection==5:
+                going=False
 
+
+def render_string(current_string,font,font_size,color,rect_center):
+    text=font.render(current_string,1,color)
+    textpos=text.get_rect(center=rect_center)
+    return text,textpos
 def game_over(screen,image,clock):
     screen.blit(image,(0,0))
     pygame.display.flip()
