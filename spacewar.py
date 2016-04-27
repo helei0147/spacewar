@@ -11,6 +11,34 @@ def main():
     pygame.display.set_caption('ball')
     pygame.mouse.set_visible(0)
 
+    clock=pygame.time.Clock()
+
+    going=True
+    welcoming_page(screen,clock)
+    #arcade_mode(screen,clock)
+    pygame.quit()
+'''    while going:
+        clock.tick(FPS)
+
+
+
+        #
+        arcade_mode(screen,clock)
+'''
+
+
+def blit_life(player_sprites,image,surface):
+    number=len(player_sprites)
+    moving=ATTRIBUTE_RECT.height
+    temp_rect=ATTRIBUTE_RECT
+    left_top=(temp_rect.left,temp_rect.top)
+    for i in player_sprites:
+        for j in range(i.life):
+            surface.blit(image,left_top)
+            left_top=(left_top[0]+30,left_top[1])
+        left_top=(left_top[0],left_top[1]+100)
+
+def arcade_mode(screen,clock):
     background,back_rect=load_image('background.png',(0,255,0))
     gameover_image,gameover_rect=load_image('gameover.png')
     gameover_image=gameover_image.convert()
@@ -19,8 +47,6 @@ def main():
     background=background.convert()
     screen.blit(background,(0,0))
     pygame.display.flip()
-
-    clock=pygame.time.Clock()
 
     # player buffer
     player_maid=plane.player('plane.png')
@@ -37,18 +63,48 @@ def main():
     # bullet pools
     enemy_bullet_sprites=pygame.sprite.RenderPlain()
     player_bullet_sprites=pygame.sprite.RenderPlain()
-
     going=True
     while going:
         clock.tick(FPS)
-
         for event in pygame.event.get():
             if event.type==KEYDOWN:
                 if event.key==K_ESCAPE:
                     going=False
-
-
         keystate=pygame.key.get_pressed()
+        # plane moving process
+        ''' it is wierd the function of processing key-pressing returns
+        a buffer of bullet... maybe there is another way to ksolve this better'''
+        for whoever in player_sprites:
+            player_bullet_buffer=plane.key_press_process_plane(player_maid,enemy_sprites,keystate)
+            player_bullet_sprites.add(player_bullet_buffer)
+
+        # enemy shooting
+        for i in enemy_buffer:
+            temp_bullet_pool=i.shoot()
+            enemy_bullet_sprites.add(temp_bullet_pool)
+
+        # sprites update
+        player_sprites.update()
+        enemy_sprites.update()
+        enemy_bullet_sprites.update()
+        player_bullet_sprites.update()
+
+        # collide detection
+        for i in enemy_sprites:
+            killed_player_bullets=pygame.sprite.spritecollide(i,player_bullet_sprites,False,pygame.sprite.collide_circle)
+            if killed_player_bullets!=None:
+                for whatever in killed_player_bullets:
+                    temp_damage=whatever.damage
+                    i.health-=temp_damage
+                    whatever.kill()
+        for i in player_sprites:
+            killed_enemy_bullets=pygame.sprite.spritecollide(i,enemy_bullet_sprites,False,pygame.sprite.collide_circle)
+
+            if killed_enemy_bullets!=[]:
+                #print 'Ouch'
+                i._get_hit()
+                for whatever in killed_enemy_bullets:
+                    whatever.kill()
         # plane moving process
         ''' it is wierd the function of processing key-pressing returns
         a buffer of bullet... maybe there is another way to ksolve this better'''
@@ -119,62 +175,58 @@ def main():
             game_over(screen,gameover_image,clock)
             going=False
         pygame.display.flip()
-
-    pygame.quit()
-
-def blit_life(player_sprites,image,surface):
-    number=len(player_sprites)
-    moving=ATTRIBUTE_RECT.height
-    temp_rect=ATTRIBUTE_RECT
-    left_top=(temp_rect.left,temp_rect.top)
-    for i in player_sprites:
-        for j in range(i.life):
-            surface.blit(image,left_top)
-            left_top=(left_top[0]+30,left_top[1])
-        left_top=(left_top[0],left_top[1]+100)
 def welcoming_page(screen,clock):
-    background_image,backgtound_rect=load_iamge('welcoming.png')
-    screen.blit(background_image(0,0))
+    background_image,backgtound_rect=load_image('welcoming.png')
+
     current_selection=0
     selections=['ARCADE','CONQUEST','STAGE PRACTICE','WATCH REPLAY','OPTIONS','QUIT']
+    going=True
     while going:
-        clock.tick()
+        clock.tick(FPS)
+        screen.blit(background_image,(0,0))
+        for event in pygame.event.get():
+            if event.type==KEYDOWN:
+                if event.key==K_ESCAPE:
+                    going=False
+            if event.type==KEYUP:
+                if event.key==K_UP:
+                    current_selection-=1
+                    current_selection=current_selection%len(selections)
+                elif event.key==K_DOWN:
+                    current_selection+=1
+                    current_selection=current_selection%len(selections)
+                elif event.key==K_RETURN or event.key==K_z:
+                    if current_selection==0:
+                        arcade_mode(screen,clock)
+                    elif current_selection==1:
+                        conquest_mode()
+                    elif current_selection==2:
+                        practice_mode()
+                    elif current_selection==3:
+                        replay_mode()
+                    elif current_selection==4:
+                        option_mode()
+                    elif current_selection==5:
+                        going=False
         if pygame.font:
             font=pygame.font.Font(None,36)
+            selected_font=pygame.font.Font(None,48)
             current_center=(screen.get_width()/2,200)
             height=50
             for i in range(len(selections)):
                 current_center=(current_center[0],current_center[1]+height)
                 if i==current_selection:
-                    text,textpos=render_string(selections[i],font,36,RED,current_center)
+                    text,textpos=render_string(selections[i],selected_font,RED,current_center)
                 else:
-                    text,textpos=render_string(selections[i],font,24,RED,current_center)
+                    text,textpos=render_string(selections[i],font,RED,current_center)
                 screen.blit(text,textpos)
         keystate=pygame.key.get_pressed()
         if keystate[K_ESCAPE]:
             going=False
-        if keystate[K_UP]:
-            current_selection-=1
-            current_selection=current_selection%len(selections)
-        if keystate[K_DOWN]:
-            current_selection+=1
-            current_selection=curretn_selection%len(selections)
-        if keystate[K_RETURN] or keystate[K_z]:
-            if current_selection==0:
-                arcade_mode()
-            elif current_selection==1:
-                conquest_mode()
-            elif current_selection==2:
-                practice_mode()
-            elif current_selection==3:
-                replay_mode()
-            elif current_selection==4:
-                option_mode()
-            elif current_selection==5:
-                going=False
+        pygame.display.flip()
 
 
-def render_string(current_string,font,font_size,color,rect_center):
+def render_string(current_string,font,color,rect_center):
     text=font.render(current_string,1,color)
     textpos=text.get_rect(center=rect_center)
     return text,textpos

@@ -91,3 +91,5 @@ when the player get hitted, this function is called. when the player is in the s
 * 自机的replay
 按照帧存储按键集重新运行游戏？比想象中的要难一些。。。
 * 对话设计，人物的显现，淡出（pygame中有设置alpha值的选项吗？看看去）
+
+在游戏的循环中每一帧必须要加入时间的处理，否则会卡顿，不响应按键。原因，不知道
