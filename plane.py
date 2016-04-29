@@ -182,14 +182,18 @@ class enemy(pygame.sprite.Sprite):
                 bullet_buffer.append(temp_bullet)
         return bullet_buffer
 def key_press_process_plane(myplane,enemy_sprites,keystate):
+    key_press_process_plane_moving(myplane,keystate)
+    bullet_buffer=[]
+
+    if keystate[K_z]:
+        bullet_buffer=myplane.shoot(enemy_sprites)
+    return bullet_buffer
+
+def key_press_process_plane_moving(myplane,keystate):
     arrow_buffer=get_arrow_state(keystate)
     current_direction=return_direction(arrow_buffer)
     myplane.direction=current_direction
-    bullet_buffer=[]
     if keystate[K_LSHIFT]:
         myplane.moving_mode=SLOW_MODE
     else:
         myplane.moving_mode=NORMAL_MODE
-    if keystate[K_z]:
-        bullet_buffer=myplane.shoot(enemy_sprites)
-    return bullet_buffer

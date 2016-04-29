@@ -241,7 +241,7 @@ def welcoming_page(screen,clock):
         pygame.display.flip()
 
 
-def render_string(current_string,font,color,rect_center):
+def render_string(current_string,font,color,rect_center=(0,0)):
     text=font.render(current_string,1,color)
     textpos=text.get_rect(center=rect_center)
     return text,textpos
