@@ -3,6 +3,11 @@ from pygame.locals import *
 from constants import *
 import struct
 
+def render_string(current_string,font,color,rect_center=(0,0)):
+    text=font.render(current_string,1,color)
+    textpos=text.get_rect(center=rect_center)
+    return text,textpos
+
 def process_keystate(keystate):
     '''process queue is up, down, left, right, shift, shoot, bomb'''
     keybuffer=[K_UP,K_DOWN,K_LEFT,K_RIGHT,K_LSHIFT,K_z,K_x]

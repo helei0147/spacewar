@@ -4,6 +4,7 @@ from constants import *
 from tools import *
 import plane
 import bullet
+import communication
 
 def main():
     pygame.init()
@@ -138,6 +139,8 @@ def arcade_mode(screen,clock):
                 if event.key==K_r:
                     replay.close()
                     record_replay=False
+                if event.key==K_c:
+                    communication.communication('communication/stage1_communication',replay,screen,clock,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         keystate=pygame.key.get_pressed()
         if record_replay:
             process_replay(replay,keystate)
@@ -241,10 +244,7 @@ def welcoming_page(screen,clock):
         pygame.display.flip()
 
 
-def render_string(current_string,font,color,rect_center=(0,0)):
-    text=font.render(current_string,1,color)
-    textpos=text.get_rect(center=rect_center)
-    return text,textpos
+
 def game_over(screen,image,clock):
     screen.blit(image,(0,0))
     pygame.display.flip()
