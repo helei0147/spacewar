@@ -5,14 +5,14 @@ from tools import *
 from constants import *
 import plane
 import bullet
-def communication(communicate_file,replay,screen,clock,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites):
+def communication(communicate_file,replay,screen,background,clock,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites):
     dialog=open(communicate_file,'r')
     picture_dict={} # a 'pic_name'-'pic_index' dict
     pic_buffer=[] # save all images, image pool
     pic_rect_buffer=[] # save all images' rect, match with pic_buffer
     content_buffer=[] # save text information
     pic_seq_pool=[] # indicate which picture to show in specific content_index
-    position_buffer=[]
+    total_position_buffer=[]
     highlight_seq_pool=[]
     current_content_index=0
     frame_counter=0
@@ -45,7 +45,8 @@ def communication(communicate_file,replay,screen,clock,player_sprites,enemy_spri
         temp_position=[]
         for i in position_buffer:
             temp_position.append(int(i))
-        position_buffer.append(temp_position)
+        total_position_buffer.append(temp_position)
+        print temp_position
         # manage pictures need to be highlighted
         temp_highlight_buffer=[]
         highlight_objects_string=string_buffer[len(string_buffer)-2]
@@ -55,17 +56,13 @@ def communication(communicate_file,replay,screen,clock,player_sprites,enemy_spri
             temp_highlight_buffer.append(int(temp_string))
         highlight_seq_pool.append(temp_highlight_buffer)
         # process communication string
-        print len(string_buffer)
         text_buffer=split_content(string_buffer[len(string_buffer)-1],80)
-        print text_buffer
         temp_content=content(text_buffer,36,RED)
-        for i in temp_content.contents:
-            print i
         content_buffer.append(temp_content)
     # erase all bullets
     for i in player_bullet_sprites:
         i.kill()
-    for j in enemy_bullet_sprites:
+    for i in enemy_bullet_sprites:
         i.kill()
 
     going = True
@@ -78,27 +75,34 @@ def communication(communicate_file,replay,screen,clock,player_sprites,enemy_spri
             if event.type==KEYUP:
                 if event.key==K_z:
                     current_content_index+=1
+                    if current_content_index==len(content_buffer):
+                        going=False
                     frame_counter=0
+        if current_content_index==len(content_buffer):
+            break
+        screen.blit(background,GAME_RECT)
         keystate=pygame.key.get_pressed()
         # still record the movement
         process_replay(replay,keystate)
         # player can move to a safe place when the dialog is going
         for whoever in player_sprites:
             plane.key_press_process_plane_moving(whoever,keystate)
-
+        player_sprites.update()
+        player_sprites.draw(screen)
+        enemy_sprites.draw(screen)
         # process pictures of characters
         current_pic_index_buffer=pic_seq_pool[current_content_index]
         current_highlight_index_buffer=highlight_seq_pool[current_content_index]
         # display animation
-        render_animation(screen,pic_buffer,pic_rect_buffer,position_buffer,current_pic_index_buffer,current_highlight_index_buffer)
+        render_animation(screen,pic_buffer,pic_rect_buffer,total_position_buffer[current_content_index],current_pic_index_buffer,current_highlight_index_buffer)
         # render the background of the dialog
-        player_sprites.draw(screen)
-        enemy_sprites.draw(screen)
+
         frame_counter+=1
         render_text_buffer,render_rect_buffer=content_buffer[current_content_index].get_content_blocks(frame_counter)
         render_content(screen,DIALOG_RECT,render_text_buffer,render_rect_buffer)
 
         pygame.display.flip()
+
 def render_animation(screen,pic_buffer,pic_rect_buffer,position_buffer,pic_index_buffer,highlight_index_buffer):
     for i in pic_index_buffer:
         temp_image=pic_buffer[i]
@@ -109,7 +113,7 @@ def render_animation(screen,pic_buffer,pic_rect_buffer,position_buffer,pic_index
         if position_buffer[i]==0:
             temp_rect.left=ANIMATION_RECT.left
             temp_rect.bottom=ANIMATION_RECT.bottom
-        else:
+        elif position_buffer[i]==1:
             temp_rect.right=ANIMATION_RECT.right
             temp_rect.bottom=ANIMATION_RECT.bottom
         screen.blit(temp_image,temp_rect)
@@ -148,8 +152,6 @@ class content:
         rect_buffer=[]
         # render complete lines
         while current_frame+len(self.contents[current_line])<=frame:
-            print current_line
-
             current_frame+=len(self.contents[current_line])
             current_line+=1
             if current_line>=len(self.contents):
@@ -179,8 +181,10 @@ def split_content(tempstring,max_length):
             temp_string=' '.join(temp_buffer)
             total.append(temp_string)
             temp_buffer=[]
+            current_length=0
         else:
             temp_buffer.append(string)
     temp_string=' '.join(temp_buffer)
     total.append(temp_string)
+    print total
     return total

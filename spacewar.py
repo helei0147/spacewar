@@ -93,8 +93,8 @@ def remove_unvalid_enemy(enemy_sprites):
         if i.health<=0:
             i.kill()
 
-def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,background,life_image):
-    screen.fill((0,0,0))
+def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,game_back,background,life_image):
+    screen.blit(game_back,GAME_RECT)
     pygame.draw.rect(screen,RED,GAME_RECT,1)
     enemy_sprites.draw(screen)
     player_bullet_sprites.draw(screen)
@@ -112,6 +112,7 @@ def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enem
             pygame.draw.circle(screen,RED,i.rect.center,i.radius,2)
 
 def arcade_mode(screen,clock):
+    gameback_image,gameback_rect=load_image('gameback.png')
     background,back_rect=load_image('background.png',(0,255,0))
     gameover_image,gameover_rect=load_image('gameover.png')
     gameover_image=gameover_image.convert()
@@ -140,7 +141,8 @@ def arcade_mode(screen,clock):
                     replay.close()
                     record_replay=False
                 if event.key==K_c:
-                    communication.communication('communication/stage1_communication',replay,screen,clock,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
+                    print communication
+                    communication.communication('communication/stage1_communication',replay,screen,gameback_image,clock,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         keystate=pygame.key.get_pressed()
         if record_replay:
             process_replay(replay,keystate)
@@ -149,7 +151,7 @@ def arcade_mode(screen,clock):
         update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_enemy(enemy_sprites)
-        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,background,life_image)
+        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,gameback_image,background,life_image)
         if len(player_sprites.sprites())==0:
             game_over(screen,gameover_image,clock)
             going=False
@@ -188,7 +190,7 @@ def replay_mode(screen,clock):
         update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_enemy(enemy_sprites)
-        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,background,life_image)
+        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,gameback_image,background,life_image)
         if len(player_sprites.sprites())==0:
             game_over(screen,gameover_image,clock)
             going=False
@@ -202,6 +204,18 @@ def welcoming_page(screen,clock):
     while going:
         clock.tick(FPS)
         screen.blit(background_image,(0,0))
+        if pygame.font:
+            font=pygame.font.Font(None,36)
+            selected_font=pygame.font.Font(None,48)
+            current_center=(screen.get_width()/2,200)
+            height=50
+            for i in range(len(selections)):
+                current_center=(current_center[0],current_center[1]+height)
+                if i==current_selection:
+                    text,textpos=render_string(selections[i],selected_font,RED,current_center)
+                else:
+                    text,textpos=render_string(selections[i],font,RED,current_center)
+                screen.blit(text,textpos)
         for event in pygame.event.get():
             if event.type==KEYDOWN:
                 if event.key==K_ESCAPE:
@@ -226,18 +240,7 @@ def welcoming_page(screen,clock):
                         option_mode()
                     elif current_selection==5:
                         going=False
-        if pygame.font:
-            font=pygame.font.Font(None,36)
-            selected_font=pygame.font.Font(None,48)
-            current_center=(screen.get_width()/2,200)
-            height=50
-            for i in range(len(selections)):
-                current_center=(current_center[0],current_center[1]+height)
-                if i==current_selection:
-                    text,textpos=render_string(selections[i],selected_font,RED,current_center)
-                else:
-                    text,textpos=render_string(selections[i],font,RED,current_center)
-                screen.blit(text,textpos)
+
         keystate=pygame.key.get_pressed()
         if keystate[K_ESCAPE]:
             going=False
