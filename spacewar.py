@@ -5,6 +5,8 @@ from tools import *
 import plane
 import bullet
 import communication
+import enemy
+import load
 
 def main():
     pygame.init()
@@ -38,7 +40,7 @@ def create_player_sprites():
     return player_sprites
 
 def create_enemy_sprites():
-    enemy_silly=plane.enemy('egg.png',(300,400))
+    enemy_silly=enemy.big_sprite((300,0))
     enemy_buffer=[]
     enemy_buffer.append(enemy_silly)
     enemy_sprites=pygame.sprite.RenderPlain(enemy_buffer)
@@ -69,8 +71,7 @@ def remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,en
         killed_player_bullets=pygame.sprite.spritecollide(i,player_bullet_sprites,False,pygame.sprite.collide_circle)
         if killed_player_bullets!=None:
             for whatever in killed_player_bullets:
-                temp_damage=whatever.damage
-                i.health-=temp_damage
+                i.get_hit(whatever)
                 whatever.kill()
     for i in player_sprites:
         killed_enemy_bullets=pygame.sprite.spritecollide(i,enemy_bullet_sprites,False,pygame.sprite.collide_circle)
@@ -130,6 +131,8 @@ def arcade_mode(screen,clock):
     going=True
     replay=open('replay/replay1','wb')
     record_replay=True
+    total_enemy_data=load.load_stage_file('stage_files/stage1')
+    frame_counter=0
     while going:
         clock.tick(FPS)
         for event in pygame.event.get():
@@ -146,12 +149,16 @@ def arcade_mode(screen,clock):
         keystate=pygame.key.get_pressed()
         if record_replay:
             process_replay(replay,keystate)
-
+        # data process in total_enemy_data, now it is not an efficient method
+        for i in total_enemy_data:
+            if i.showup_time==frame_counter:
+                enemy_sprites.add(enemy.big_sprite(i.position))
         shooting_process(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,keystate)
         update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
         remove_unvalid_enemy(enemy_sprites)
         render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,gameback_image,background,life_image)
+        frame_counter+=1
         if len(player_sprites.sprites())==0:
             game_over(screen,gameover_image,clock)
             going=False

@@ -145,8 +145,9 @@ class enemy(pygame.sprite.Sprite):
         self.original=self.image
         self.radius=40
         self.speed=0
-        self.direction=180
+        self.direction=180/180*pi
         self.health=1000
+        self.undefeat_remain=0
         self.base_shoot_direction=0
         self.judgement=CIRCLE_JUDGEMENT
         self.frame_counter=0
@@ -167,6 +168,8 @@ class enemy(pygame.sprite.Sprite):
         self.position=(positionx,positiony)
 
         self.rect=self.rect.move(temp_move)
+    def get_hit(self,player_bullet):
+        self.health-=player_bullet.damage
     def shoot(self):
         bullet_buffer=[]
         if self.frame_counter%6!=0:
