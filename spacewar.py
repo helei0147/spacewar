@@ -59,12 +59,12 @@ def shooting_process(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bu
         temp_bullet_pool=i.shoot()
         enemy_bullet_sprites.add(temp_bullet_pool)
 
-def update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites):
+def update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites):
     player_sprites.update()
     enemy_sprites.update()
     enemy_bullet_sprites.update()
     player_bullet_sprites.update()
-
+    prize_sprites.update()
 def remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites):
     # collide detection
     for i in enemy_sprites:
@@ -88,19 +88,36 @@ def remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,en
     for i in player_bullet_sprites:
         if i.rect.colliderect(GAME_RECT)==False:
             i.kill()
-
-def remove_unvalid_enemy(enemy_sprites):
+def remove_prize(prize_sprites,player_sprites):
+    for i in player_sprites:
+        killed_prize=pygame.sprite.spritecollide(i,prize_sprites,False,pygame.sprite.collide_rect)
+        if killed_prize!=None:
+            for whatever in killed_prize:
+                i.score+=whatever.score
+                whatever.kill()
+def remove_unvalid_enemy(enemy_sprites,player_sprites,enemy_bullet_sprites,player_bullet_sprites,prize_sprites):
     for i in enemy_sprites:
         if i.health<=0:
+            # when the enemy is killed, every shooted bullet has a bonus
+            for j in enemy_bullet_sprites:
+                if j.owner==i:
+                    temp_prize=bullet.point(j.rect.center,i.killer,5)
+                    prize_sprites.add(temp_prize)
+                    j.kill()
+            temp_bonus_buffer=i.shoot_bonus()
+            prize_sprites.add(temp_bonus_buffer)
+            i.kill()
+        if not in_range(i.rect.center,VALID_RECT):
             i.kill()
 
-def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,game_back,background,life_image):
+def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites,game_back,background,life_image):
     screen.blit(game_back,GAME_RECT)
     pygame.draw.rect(screen,RED,GAME_RECT,1)
     enemy_sprites.draw(screen)
     player_bullet_sprites.draw(screen)
     player_sprites.draw(screen)
     enemy_bullet_sprites.draw(screen)
+    prize_sprites.draw(screen)
     screen.blit(background,(0,0))
     blit_life(player_sprites,life_image,screen)
     # judgement point display
@@ -128,6 +145,7 @@ def arcade_mode(screen,clock):
     # bullet pools
     enemy_bullet_sprites=pygame.sprite.RenderPlain()
     player_bullet_sprites=pygame.sprite.RenderPlain()
+    prize_sprites=pygame.sprite.RenderPlain()
     going=True
     replay=open('replay/replay1','wb')
     record_replay=True
@@ -154,10 +172,11 @@ def arcade_mode(screen,clock):
             if i.showup_time==frame_counter:
                 enemy_sprites.add(enemy.big_sprite(i.position))
         shooting_process(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,keystate)
-        update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
+        update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites)
         remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
-        remove_unvalid_enemy(enemy_sprites)
-        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,gameback_image,background,life_image)
+        remove_prize(prize_sprites,player_sprites)
+        remove_unvalid_enemy(enemy_sprites,player_sprites,enemy_bullet_sprites,player_bullet_sprites,prize_sprites)
+        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites,gameback_image,background,life_image)
         frame_counter+=1
         if len(player_sprites.sprites())==0:
             game_over(screen,gameover_image,clock)
@@ -178,6 +197,7 @@ def replay_mode(screen,clock):
     # bullet pools
     enemy_bullet_sprites=pygame.sprite.RenderPlain()
     player_bullet_sprites=pygame.sprite.RenderPlain()
+    prize_sprites=pygame.sprite.RenderPlain()
     # readin replay
     replay=open('replay/replay1','r')
     going=True
@@ -194,10 +214,10 @@ def replay_mode(screen,clock):
         byte=ord(character)
         keystate=generate_keystate(keystate,byte)
         shooting_process(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,keystate)
-        update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
+        update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites)
         remove_unvalid_bullets(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites)
-        remove_unvalid_enemy(enemy_sprites)
-        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,gameback_image,background,life_image)
+        remove_unvalid_enemy(enemy_sprites,player_sprites,enemy_bullet_sprites,player_bullet_sprites,prize_sprites)
+        render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites,gameback_image,background,life_image)
         if len(player_sprites.sprites())==0:
             game_over(screen,gameover_image,clock)
             going=False

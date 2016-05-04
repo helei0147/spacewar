@@ -118,3 +118,10 @@ def get_arrow_state(keystate):
     if keystate[K_LEFT]:
         arrow_buffer[3]=1
     return arrow_buffer
+
+
+def in_range(center,target_rect):
+    if center[0]<target_rect.right and center[0]>target_rect.left:
+        if center[1]<target_rect.bottom and center[1]>target_rect.top:
+            return True
+    return False

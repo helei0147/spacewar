@@ -17,7 +17,7 @@ def cal_rad(destination,start):
     return theta
 
 class bullet(pygame.sprite.Sprite):
-    def __init__(self,position,temp_direction=0,temp_damage=1):
+    def __init__(self,position,temp_owner,temp_direction=0,temp_damage=1):
         pygame.sprite.Sprite.__init__(self)
         self.image,self.rect=load_image('bullet2.png',-1)
         self.original=self.image
@@ -32,6 +32,7 @@ class bullet(pygame.sprite.Sprite):
         # bullet damage
         self.damage=temp_damage
         self.rect=self.rect.move(position)
+        self.owner=temp_owner
     def update(self):
         self._move()
     def _move(self):
@@ -46,22 +47,23 @@ class bullet(pygame.sprite.Sprite):
 
 
 class amulet_bullet(bullet):
-    def __init__(self,position,target,temp_direction=0,temp_damage=2):
-        bullet.__init__(self,position,temp_direction,temp_damage)
+    def __init__(self,position,temp_owner,target,temp_weight=0.91,\
+                 temp_direction=0,temp_damage=2):
+        bullet.__init__(self,position,temp_owner,temp_direction,temp_damage)
         self.image,self.rect=load_image('Amulet_1.png',-1)
         self.rect.center=position
         self.original=self.image # for rotating the image
         self.target=target
         self.judgement=CIRCLE_JUDGEMENT
         self.radius=3
+        self.original_weight=temp_weight
     def _change_radius(self,temp_radius):
         self.radius=temp_radius
     def update(self):
-        self._move(self.target)
+        self._move(self.target,self.original_weight)
         self.frame_counter+=1
     def _move(self,target,weight=0.91):
         if self.target!=None and self.target.alive():
-            print self.target
             destination=self.target.rect.center
             start=self.rect.center
             theta=cal_rad(destination,start)
@@ -82,8 +84,8 @@ class amulet_bullet(bullet):
 
 
 class circle_bullet(bullet):
-    def __init__(self,position,temp_direction=0,temp_damage=1):
-        bullet.__init__(self,position,temp_direction,temp_damage)
+    def __init__(self,position,temp_owner,temp_direction=0,temp_damage=1):
+        bullet.__init__(self,position,temp_owner,temp_direction,temp_damage)
         self.image,self.rect=load_image('bullet1.png',-1)
         self.rect.center=position
         self.original=self.image
@@ -101,3 +103,22 @@ class circle_bullet(bullet):
         if self.speed>2:
             if self.frame_counter%30==0:
                 self.speed-=1
+
+class prize(amulet_bullet):
+    def __init__(self,position,temp_target,temp_score):
+        amulet_bullet.__init__(self,position,None,temp_target,0)
+        self.speed=5
+        self.score=temp_score
+
+class point(prize):
+    def __init__(self,position,temp_target,temp_score):
+        prize.__init__(self,position,temp_target,temp_score)
+        self.image,temp_rect=load_image('point.png')
+
+class bonus(prize):
+    def __init__(self,position,temp_score):
+        prize.__init__(self,position,None,temp_score)
+        temp_center=self.rect.center
+        self.image,self.rect=load_image('bonus.png')
+        self.rect.center=temp_center
+        self.direction=pi

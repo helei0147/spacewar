@@ -2,6 +2,7 @@ import sys,os,math
 import pygame
 from tools import *
 from pygame.locals import *
+from constants import *
 import bullet
 from math import *
 
@@ -27,13 +28,13 @@ class player(pygame.sprite.Sprite):
         self.undefeatable_frames_remain=0
         self.alive_frames=0
         self.shooting_ways=5
-
+        self.score=0
     def update(self):
         self._move()
         self.alive_frames+=1
         if self.undefeatable_frames_remain>0:
             self.undefeatable_frames_remain-=1
-
+        print self.score
     def _biu(self):
         self.life-=1
         self.undefeatable_frames_remain=1200
@@ -119,7 +120,7 @@ class player(pygame.sprite.Sprite):
                 target=None
             current_direction=direction/2
             for i in range(self.shooting_ways):
-                temp_bullet=bullet.amulet_bullet(temp_position,target,current_direction,damage)
+                temp_bullet=bullet.amulet_bullet(temp_position,self,target,ORIGIN_WEIGHT,current_direction,damage)
                 bullet_buffer.append(temp_bullet)
                 current_direction+=direction
         else:
@@ -130,7 +131,7 @@ class player(pygame.sprite.Sprite):
             else:
                 target=None
             for i in range(self.shooting_ways):
-                temp_bullet=bullet.amulet_bullet(temp_position,target,current_direction,damage)
+                temp_bullet=bullet.amulet_bullet(temp_position,self,target,ORIGIN_WEIGHT,current_direction,damage)
                 bullet_buffer.append(temp_bullet)
                 current_direction+=direction
         return bullet_buffer
@@ -146,11 +147,12 @@ class enemy(pygame.sprite.Sprite):
         self.radius=40
         self.speed=0
         self.direction=180/180*pi
-        self.health=1000
+        self.health=500
         self.undefeat_remain=0
         self.base_shoot_direction=0
         self.judgement=CIRCLE_JUDGEMENT
         self.frame_counter=0
+        self.killer=None
     def update(self):
         self._move()
         self.frame_counter+=1
@@ -170,6 +172,14 @@ class enemy(pygame.sprite.Sprite):
         self.rect=self.rect.move(temp_move)
     def get_hit(self,player_bullet):
         self.health-=player_bullet.damage
+        if self.health<=0:
+            # if several bullets hit the object in the same frame
+            # there is no necessity to know whose bullet hit first.
+            self.killer=player_bullet.owner
+    def shoot_bonus(self):
+        # big bonus point can not follow player automatically
+        temp_bonus=bullet.bonus(self.rect.center,10000)
+        return temp_bonus
     def shoot(self):
         bullet_buffer=[]
         if self.frame_counter%6!=0:
@@ -181,7 +191,7 @@ class enemy(pygame.sprite.Sprite):
             self.base_shoot_direction+=1
             for i in range(ways):
                 temp_direction=i*360/ways+self.base_shoot_direction
-                temp_bullet=bullet.circle_bullet(self.rect.center,temp_direction)
+                temp_bullet=bullet.circle_bullet(self.rect.center,self,temp_direction)
                 bullet_buffer.append(temp_bullet)
         return bullet_buffer
 def key_press_process_plane(myplane,enemy_sprites,keystate):
