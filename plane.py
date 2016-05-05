@@ -29,6 +29,7 @@ class player(pygame.sprite.Sprite):
         self.alive_frames=0
         self.shooting_ways=5
         self.score=0
+        self.border_line_percent=0.3
     def update(self):
         self._move()
         self.alive_frames+=1
@@ -43,7 +44,12 @@ class player(pygame.sprite.Sprite):
             self._biu()
         else:
             pass
-
+    def magnet_points(self,prize_sprites):
+        border_line=GAME_RECT.top+GAME_RECT.height*self.border_line_percent
+        if self.rect.centery<border_line:
+            for i in prize_sprites:
+                if i.target==None:
+                    i.target=self
     def _generate_move(self,direction,mode):
         if mode==SLOW_MODE:
             speed=self.slow_speed

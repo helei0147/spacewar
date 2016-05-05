@@ -61,6 +61,8 @@ def shooting_process(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bu
 
 def update_sprites(player_sprites,enemy_sprites,player_bullet_sprites,enemy_bullet_sprites,prize_sprites):
     player_sprites.update()
+    for i in player_sprites:
+        i.magnet_points(prize_sprites)
     enemy_sprites.update()
     enemy_bullet_sprites.update()
     player_bullet_sprites.update()
@@ -183,6 +185,7 @@ def arcade_mode(screen,clock):
             going=False
         pygame.display.flip()
 def replay_mode(screen,clock):
+    gameback_image,gameback_rect=load_image('gameback.png')
     background,back_rect=load_image('background.png',(0,255,0))
     gameover_image,gameover_rect=load_image('gameover.png')
     gameover_image=gameover_image.convert()
