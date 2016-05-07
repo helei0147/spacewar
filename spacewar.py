@@ -11,6 +11,7 @@ import load
 def main():
     pygame.init()
     screen=pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
+    screen.set_alpha(0)
     pygame.display.set_caption('ball')
     pygame.mouse.set_visible(0)
 
@@ -22,6 +23,7 @@ def main():
     pygame.quit()
 
 def blit_life(player_sprites,image,surface):
+    image.set_alpha(124)
     number=len(player_sprites)
     moving=ATTRIBUTE_RECT.height
     temp_rect=ATTRIBUTE_RECT
@@ -131,7 +133,7 @@ def render_screen(screen,player_sprites,enemy_sprites,player_bullet_sprites,enem
             pygame.draw.circle(screen,WHITE,i.rect.center,i.radius)
             pygame.draw.circle(screen,RED,i.rect.center,i.radius,2)
 
-def arcade_mode(screen,clock):
+def arcade_mode(screen,clock,stage_file_name):
     gameback_image,gameback_rect=load_image('gameback.png')
     background,back_rect=load_image('background.png',(0,255,0))
     gameover_image,gameover_rect=load_image('gameover.png')
@@ -149,9 +151,11 @@ def arcade_mode(screen,clock):
     player_bullet_sprites=pygame.sprite.RenderPlain()
     prize_sprites=pygame.sprite.RenderPlain()
     going=True
-    replay=open('replay/replay1','wb')
+    replay_file_name=get_replay_file_name()
+    replay_file_name='replay/'+replay_file_name
+    replay=open(replay_file_name,'wb')
     record_replay=True
-    total_enemy_data=load.load_stage_file('stage_files/stage1')
+    total_enemy_data=load.load_stage_file(stage_file_name)
     frame_counter=0
     while going:
         clock.tick(FPS)
@@ -259,7 +263,7 @@ def welcoming_page(screen,clock):
                     current_selection=current_selection%len(selections)
                 elif event.key==K_RETURN or event.key==K_z:
                     if current_selection==0:
-                        arcade_mode(screen,clock)
+                        arcade_mode(screen,clock,'stage_files/stage1')
                     elif current_selection==1:
                         conquest_mode()
                     elif current_selection==2:
@@ -276,7 +280,12 @@ def welcoming_page(screen,clock):
             going=False
         pygame.display.flip()
 
-
+def get_replay_file_name():
+    current_path=os.getcwd()
+    replay_path=current_path+'/replay'
+    replay_number=len(os.listdir(replay_path))
+    replay_file_name='replay'+str(replay_number)
+    return replay_file_name
 
 def game_over(screen,image,clock):
     screen.blit(image,(0,0))

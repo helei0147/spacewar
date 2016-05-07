@@ -96,7 +96,9 @@ def communication(communicate_file,replay,screen,background,clock,player_sprites
         # display animation
         render_animation(screen,pic_buffer,pic_rect_buffer,total_position_buffer[current_content_index],current_pic_index_buffer,current_highlight_index_buffer)
         # render the background of the dialog
-
+        dialog_back_image,dialog_back_rect=load_image('dialog_background.png',-1)
+        dialog_back_image.set_alpha(50)
+        screen.blit(dialog_back_image,DIALOG_RECT)
         frame_counter+=1
         render_text_buffer,render_rect_buffer=content_buffer[current_content_index].get_content_blocks(frame_counter)
         render_content(screen,DIALOG_RECT,render_text_buffer,render_rect_buffer)
